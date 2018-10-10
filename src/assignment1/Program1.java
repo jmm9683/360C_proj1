@@ -134,19 +134,25 @@ public class Program1 extends AbstractProgram1 {
         		int openSlots = (int) hosSpots.get(thisPrefHos);
         		if (openSlots == 0) {
         			//if hospital is full need to check all current residents
+        			int thisPrefHos_opCurRes = hosPref.get(thisPrefHos).indexOf(i); //compare to least favorite resident
+        			int leastFaveLoc = -1;
+        			int leastFaveRes = 0;
+        			int leastFaveR = 0;
         			for (int r = 0; r < marriage.getHospitalSlots().get(thisPrefHos); r++) { //r is the resident in thisPrefHos
         				int thisRes = hosRes[thisPrefHos][r];
         				int thisPrefHos_opthisRes = hosPref.get(thisPrefHos).indexOf(thisRes);
-//        				int thisRes_opthisHos = resPref.get(thisRes).indexOf(thisPrefHos);
-        				int thisPrefHOs_opCurRes = hosPref.get(thisPrefHos).indexOf(i);
-        				//if they both prefer each other more
-        				if (thisPrefHos_opthisRes > thisPrefHOs_opCurRes) {
-        					hosRes[thisPrefHos][r] = i;
-        					resQ.add(thisRes);
-        					matches.set(i, thisPrefHos);
-        					matches.set(thisRes, -1);
-        					break;
+        				if (leastFaveLoc == -1 || thisPrefHos_opthisRes > leastFaveLoc) {
+        					leastFaveLoc = thisPrefHos_opthisRes;
+        					leastFaveRes = thisRes;
+        					leastFaveR = r;
         				}
+        			}
+        			if (leastFaveLoc > thisPrefHos_opCurRes) {
+        				hosRes[thisPrefHos][leastFaveR] = i;
+        				resQ.add(leastFaveRes);
+        				matches.set(i, thisPrefHos);
+       					matches.set(leastFaveRes, -1);
+       					break;
         			}
         		}
         		else {
