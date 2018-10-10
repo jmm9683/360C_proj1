@@ -178,7 +178,11 @@ public class Program1 extends AbstractProgram1 {
      */
     @Override
     public Matching stableMarriageGaleShapley_hospitaloptimal(Matching marriage) {
-        /* TODO implement this function */
+        //hospitals pick the residents, residents cannot say no
+	//for each hospital go until it fills up the slots
+	//first check if the resident is free
+	//if free then match
+	//if not free, check for instability, swap the two and add other hospital back to the queue
         return null; /* TODO remove this line */
     }
 }
