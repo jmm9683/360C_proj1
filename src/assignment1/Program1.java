@@ -183,6 +183,9 @@ public class Program1 extends AbstractProgram1 {
 	//first check if the resident is free
 	//if free then match
 	//if not free, check for instability, swap the two and add other hospital back to the queue
+	//	No need to compare preferences of other residents that are matched with that hospital
+	//	All you need to check is if resident A prefers this hospital more than its current match
+	//	(resident optimal needed to make sure the hospital prefered the resident to its ~least~ favorite resident) 
         return null; /* TODO remove this line */
     }
 }
