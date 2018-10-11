@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 
+
 /**
  * Your solution goes in this class.
  * 
@@ -94,7 +95,7 @@ public class Program1 extends AbstractProgram1 {
                 	if (matching.getResidentPreference().get(i).indexOf(matching.getResidentMatching().get(i)) != -1)
                 		matchRankSum += matching.getResidentPreference().get(i).indexOf(matching.getResidentMatching().get(i));
                 }
-
+                //when found a stable match, keep the one that has, total, best matches for the residents
                 if (matchRankMin < 0 || matchRankMin > matchRankSum) {
                 	matchRankMin = matchRankSum;
                 	resOptimal = matching;
@@ -128,7 +129,6 @@ public class Program1 extends AbstractProgram1 {
 
         while(resQ.size() != 0){ //i is the resident
         	int i = resQ.pop();
-//        	matches.set(i, -1);
         	for (int j = 0; j < resPref.get(i).size(); j++) { //j holds the index preference
         		int thisPrefHos = resPref.get(i).get(j);
         		int openSlots = (int) hosSpots.get(thisPrefHos);
@@ -147,6 +147,7 @@ public class Program1 extends AbstractProgram1 {
         					leastFaveR = r;
         				}
         			}
+        			//compare to the least favorite match
         			if (leastFaveLoc > thisPrefHos_opCurRes) {
         				hosRes[thisPrefHos][leastFaveR] = i;
         				resQ.add(leastFaveRes);
@@ -155,6 +156,7 @@ public class Program1 extends AbstractProgram1 {
        					break;
         			}
         		}
+        		//hospital not full, so just add it
         		else {
         			hosRes[thisPrefHos][marriage.getHospitalSlots().get(thisPrefHos) - openSlots] = i;
         			hosSpots.set(thisPrefHos, (int)hosSpots.get(thisPrefHos)-1);
@@ -178,14 +180,54 @@ public class Program1 extends AbstractProgram1 {
      */
     @Override
     public Matching stableMarriageGaleShapley_hospitaloptimal(Matching marriage) {
-        //hospitals pick the residents, residents cannot say no
-	//for each hospital go until it fills up the slots
-	//first check if the resident is free
-	//if free then match
-	//if not free, check for instability, swap the two and add other hospital back to the queue
-	//	No need to compare preferences of other residents that are matched with that hospital
-	//	All you need to check is if resident A prefers this hospital more than its current match
-	//	(resident optimal needed to make sure the hospital prefered the resident to its ~least~ favorite resident) 
-        return null; /* TODO remove this line */
+        ArrayList hosSpots = new ArrayList(marriage.getHospitalSlots());
+        ArrayList<ArrayList<Integer>> hosPref = marriage.getHospitalPreference();
+        ArrayList<ArrayList<Integer>> resPref = marriage.getResidentPreference();
+        LinkedList<Integer> hosQ = new LinkedList<>();
+        ArrayList<Integer> matches = new ArrayList<>();
+        for (int i = 0; i <resPref.size(); i++) { //creates queue and innitializes final match output
+        	matches.add(-1);
+        	if (hosQ.size() < hosPref.size()) {
+        		hosQ.add(i);
+        	}
+        }
+        while (hosQ.size() != 0) {
+        	int i = hosQ.pop(); //i is the hospital
+        	for (int j = 0; j < hosPref.get(i).size(); j++) {
+        		if ((int)hosSpots.get(i) < 1) {
+        			break;
+        		}
+        		//this hospitals preference
+        		int thisHosPref = hosPref.get(i).get(j);
+        		//current hospital match of this resident
+        		int curHosMatch = matches.get(thisHosPref);
+        		if (curHosMatch == -1) { //if this preferred resident is unmatched - take it 
+        			matches.set(thisHosPref, i);
+        			hosSpots.set(i, (int)hosSpots.get(i)-1);
+        		}
+        		/*
+        		 * if this preferred resident is matched, 
+        		 * check if resident prefers this hospital more than its current
+        		 * 		if yes: match it to this hospital, decrement slot number
+        		 * 				add old hospital back to queue
+        		 */
+        		else {
+        			//this hospitals preference current opinion of its match
+        			int thisHosPref_currOp = resPref.get(thisHosPref).indexOf(curHosMatch);
+        			//this hospitals preference opinion of this hospital
+        			int thisHosPref_op = resPref.get(thisHosPref).indexOf(i);
+        			if (thisHosPref_op < thisHosPref_currOp) {
+        				matches.set(thisHosPref, i);
+        				hosQ.add(curHosMatch);
+        				hosSpots.set(i, (int)hosSpots.get(i)-1);
+        				hosSpots.set(curHosMatch, (int)hosSpots.get(curHosMatch)+1);
+        			}
+        			
+        		}
+        	}
+        	
+        }
+        
+        return new Matching(marriage, matches); 
     }
 }
